@@ -40,6 +40,7 @@ Square.prototype.clear = function(){
     this.ctx.fillRect(this.x * this.side, this.y * this.side, this.side, this.side);
     this.ctx.strokeRect(this.x * this.side, this.y * this.side, this.side, this.side);
     this.curPiece = null;
+    this.ctx.fillStyle = "#000000";
 }
 
 Square.prototype.draw = function(){
@@ -56,6 +57,7 @@ Square.prototype.getPiece = function(){
 
 var Board = function(numberOfSquares){
     this.isMovingPiece = false;
+    this.originSquare = null;
     this.movingPieceName = "";
     this.numberOfSquares = numberOfSquares;
 
@@ -107,6 +109,16 @@ Board.prototype.init = function(){
         }
 
         if (this.isMovingPiece){
+            this.refresh();
+            var boardPosition = this.coords2BoardPosition(e.clientX, e.clientY);
+            var targetSquare = this.squares[boardPosition.y][boardPosition.x];
+
+            if (targetSquare.getPiece()){
+                this.originSquare.addPiece(this.movingPieceName);
+            } else{
+                targetSquare.addPiece(this.movingPieceName);
+            }
+
             this.isMovingPiece = false;
             this.movingPieceName = "";
             this.canvasCopy = null;
@@ -116,7 +128,10 @@ Board.prototype.init = function(){
             
             var piece = square.getPiece(); 
             if (piece){
+                square.clear();
+
                 this.movingPieceName = piece;
+                this.originSquare = square;
                 this.isMovingPiece = true;
                 this.canvasCopy = cloneCanvas(this.canvas);
             }
@@ -125,11 +140,15 @@ Board.prototype.init = function(){
     
     this.canvas.addEventListener('mousemove', (e) => {
         if (this.isMovingPiece) {
-            this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
-            this.ctx.drawImage(this.canvasCopy,0,0);
+            this.refresh();
             this.drawPieceOnCursor(e.clientX, e.clientY);
         }
     });
+}
+
+Board.prototype.refresh = function(){
+    this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
+    this.ctx.drawImage(this.canvasCopy,0,0);
 }
 
 Board.prototype.coords2BoardPosition = function(mouseX, mouseY){
