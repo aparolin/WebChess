@@ -4,8 +4,12 @@ define(['modules/PiecesCollection'], function(PiecesCollection){
         this.x = x;
         this.y = y;
         this.side = side;
-        this.curPiece = piece;
         this.ctx = ctx;
+        this.curPiece = null;
+
+        if (piece !== "none"){
+            this.curPiece = piece;
+        }
 
         this.draw();
     }
@@ -48,7 +52,7 @@ define(['modules/PiecesCollection'], function(PiecesCollection){
     }
 
     Square.prototype.hasPiece = function(){
-        return (this.curPiece !== "none");
+        return !!this.curPiece;
     }
 
     return Square;
