@@ -20,24 +20,11 @@ define(['modules/Square','modules/PiecesCollection'],function(Square, PiecesColl
         this.squares = [[],[],[],[],[],[],[],[]];
     }
 
-    Board.prototype.init = function(){
-        this.canvas = canvas = document.getElementById('canvas');
-        this.canvasCopy = null;
-        this.ctx = this.canvas.getContext('2d');
+    Board.prototype._setupListeners = function(){
 
-        if (canvas.width !== canvas.height){
-            throw new Error("Canvas width should be the same as height!");
-        }
+       this.canvas.addEventListener("click", (e) => {
 
-        for (var x = 0; x < this.numberOfSquares; x++){
-            for (var y = 0; y < this.numberOfSquares; y++){
-                this.squares[y].push(new Square(x,y, this.canvas.width/this.numberOfSquares, this.initialSetup[y][x], this.ctx));
-            }
-        }
-
-        this.canvas.addEventListener("click", (e) => {
-
-            function cloneCanvas(oldCanvas) {
+            function _cloneCanvas(oldCanvas) {
                 var newCanvas = document.createElement('canvas');
                 var context = newCanvas.getContext('2d');
 
@@ -74,7 +61,7 @@ define(['modules/Square','modules/PiecesCollection'],function(Square, PiecesColl
                     this.movingPieceName = piece;
                     this.originSquare = square;
                     this.isMovingPiece = true;
-                    this.canvasCopy = cloneCanvas(this.canvas);
+                    this.canvasCopy = _cloneCanvas(this.canvas);
                 }
             }
         });
@@ -85,6 +72,27 @@ define(['modules/Square','modules/PiecesCollection'],function(Square, PiecesColl
                 this.drawPieceOnCursor(e.clientX, e.clientY);
             }
         });
+    }
+
+    Board.prototype._drawBoard = function(){
+        for (var x = 0; x < this.numberOfSquares; x++){
+            for (var y = 0; y < this.numberOfSquares; y++){
+                this.squares[y].push(new Square(x,y, this.canvas.width/this.numberOfSquares, this.initialSetup[y][x], this.ctx));
+            }
+        }
+    }
+
+    Board.prototype.init = function(){
+        this.canvas = canvas = document.getElementById('canvas');
+        this.canvasCopy = null;
+        this.ctx = this.canvas.getContext('2d');
+
+        if (canvas.width !== canvas.height){
+            throw new Error("Canvas width should be the same as height!");
+        }
+
+        this._drawBoard();
+        this._setupListeners();
     }
 
     Board.prototype.refresh = function(){
