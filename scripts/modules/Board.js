@@ -1,9 +1,8 @@
 define([
     'modules/Square',
-    'modules/PiecesCollection',
     'modules/Piece',
     'modules/Util'
-],function(Square, PiecesCollection, Piece, Util){
+],function(Square, Piece, Util){
 
     var Board = function(numberOfSquares){
         this.isMovingPiece = false;
@@ -87,7 +86,7 @@ define([
         this.canvas.addEventListener('mousemove', (e) => {
             this._highlightSquareMouseOver(e.clientX, e.clientY);
         });
-        
+
         this.canvas.addEventListener('mousemove', (e) => {
             if (this.isMovingPiece) {
                 this.redraw();
