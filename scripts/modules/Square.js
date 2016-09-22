@@ -52,7 +52,7 @@ define(['modules/PiecesCollection'], function(PiecesCollection){
     }
 
     Square.prototype.hasPiece = function(){
-        return !!this.curPiece; 
+        return !!this.curPiece;
     }
 
     return Square;

@@ -1,4 +1,8 @@
-define(['modules/Square','modules/PiecesCollection'],function(Square, PiecesCollection){
+define([
+    'modules/Square',
+    'modules/PiecesCollection',
+    'modules/Util'
+],function(Square, PiecesCollection, Util){
 
     var Board = function(numberOfSquares){
         this.isMovingPiece = false;
@@ -20,56 +24,52 @@ define(['modules/Square','modules/PiecesCollection'],function(Square, PiecesColl
         this.squares = [[],[],[],[],[],[],[],[]];
     }
 
+    Board.prototype._startMovingPiece = function(mouseX, mouseY){
+        var boardPosition = this.coords2BoardPosition(mouseX, mouseY);
+        var square = this.squares[boardPosition.y][boardPosition.x];
+        
+        var piece = square.getPiece(); 
+        if (piece){
+            square.clear();
+
+            this.movingPieceName = piece;
+            this.originSquare = square;
+            this.isMovingPiece = true;
+            this.canvasCopy = Util.cloneCanvas(this.canvas);
+        }
+    }
+
+    Board.prototype._stopMovingPiece = function(mouseX, mouseY){
+        this.redraw();
+        var boardPosition = this.coords2BoardPosition(mouseX, mouseY);
+        var targetSquare = this.squares[boardPosition.y][boardPosition.x];
+
+        if (targetSquare.hasPiece()){
+            this.originSquare.addPiece(this.movingPieceName);
+        } else{
+            targetSquare.addPiece(this.movingPieceName);
+        }
+
+        this.isMovingPiece = false;
+        this.movingPieceName = "";
+        this.canvasCopy = null;
+    }
+
     Board.prototype._setupListeners = function(){
 
        this.canvas.addEventListener("click", (e) => {
-
-            function _cloneCanvas(oldCanvas) {
-                var newCanvas = document.createElement('canvas');
-                var context = newCanvas.getContext('2d');
-
-                newCanvas.width = oldCanvas.width;
-                newCanvas.height = oldCanvas.height;
-
-                context.drawImage(oldCanvas, 0, 0);
-
-                return newCanvas;
-            }
-
             if (this.isMovingPiece){
-                this.refresh();
-                var boardPosition = this.coords2BoardPosition(e.clientX, e.clientY);
-                var targetSquare = this.squares[boardPosition.y][boardPosition.x];
-
-                if (targetSquare.hasPiece()){
-                    this.originSquare.addPiece(this.movingPieceName);
-                } else{
-                    targetSquare.addPiece(this.movingPieceName);
-                }
-
-                this.isMovingPiece = false;
-                this.movingPieceName = "";
-                this.canvasCopy = null;
+                this._stopMovingPiece(e.clientX, e.clientY);
             }else{
-                var boardPosition = this.coords2BoardPosition(e.clientX, e.clientY);
-                var square = this.squares[boardPosition.y][boardPosition.x];
-                
-                var piece = square.getPiece(); 
-                if (piece){
-                    square.clear();
-
-                    this.movingPieceName = piece;
-                    this.originSquare = square;
-                    this.isMovingPiece = true;
-                    this.canvasCopy = _cloneCanvas(this.canvas);
-                }
+                this._startMovingPiece(e.clientX, e.clientY);
             }
         });
         
         this.canvas.addEventListener('mousemove', (e) => {
             if (this.isMovingPiece) {
-                this.refresh();
+                this.redraw();
                 this.drawPieceOnCursor(e.clientX, e.clientY);
+                this.highlightPossibilities();
             }
         });
     }
@@ -95,7 +95,7 @@ define(['modules/Square','modules/PiecesCollection'],function(Square, PiecesColl
         this._setupListeners();
     }
 
-    Board.prototype.refresh = function(){
+    Board.prototype.redraw = function(){
         this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
         this.ctx.drawImage(this.canvasCopy,0,0);
     }
