@@ -1,13 +1,14 @@
 define([
     'modules/Square',
     'modules/PiecesCollection',
+    'modules/Piece',
     'modules/Util'
-],function(Square, PiecesCollection, Util){
+],function(Square, PiecesCollection, Piece, Util){
 
     var Board = function(numberOfSquares){
         this.isMovingPiece = false;
         this.originSquare = null;
-        this.movingPieceName = "";
+        this.movingPiece = null;
         this.numberOfSquares = numberOfSquares;
 
         this.initialSetup = [
@@ -24,15 +25,19 @@ define([
         this.squares = [[],[],[],[],[],[],[],[]];
     }
 
+    Board.prototype._getSquareFromCoords = function(x, y){
+        var boardPosition = this.coords2BoardPosition(x, y);
+        return this.squares[boardPosition.y][boardPosition.x];
+    }
+
     Board.prototype._startMovingPiece = function(mouseX, mouseY){
-        var boardPosition = this.coords2BoardPosition(mouseX, mouseY);
-        var square = this.squares[boardPosition.y][boardPosition.x];
+        var square = this._getSquareFromCoords(mouseX, mouseY);
         
         var piece = square.getPiece(); 
         if (piece){
             square.clear();
 
-            this.movingPieceName = piece;
+            this.movingPiece = piece;
             this.originSquare = square;
             this.isMovingPiece = true;
             this.canvasCopy = Util.cloneCanvas(this.canvas);
@@ -45,14 +50,28 @@ define([
         var targetSquare = this.squares[boardPosition.y][boardPosition.x];
 
         if (targetSquare.hasPiece()){
-            this.originSquare.addPiece(this.movingPieceName);
+            this.originSquare.addPiece(this.movingPiece);
         } else{
-            targetSquare.addPiece(this.movingPieceName);
+            targetSquare.addPiece(this.movingPiece);
         }
 
         this.isMovingPiece = false;
-        this.movingPieceName = "";
+        this.movingPiece = null;
         this.canvasCopy = null;
+    }
+
+    Board.prototype._highlightSquareMouseOver = function(mouseX, mouseY){
+        var square = this._getSquareFromCoords(mouseX, mouseY   );
+
+            for (var col in this.squares){
+                for (var row in this.squares[col]){
+                    if (this.squares[col][row] !== square){
+                        this.squares[col][row].draw();
+                    }else{
+                        this.squares[col][row].highlight();        
+                    }
+                }
+            }
     }
 
     Board.prototype._setupListeners = function(){
@@ -66,10 +85,13 @@ define([
         });
         
         this.canvas.addEventListener('mousemove', (e) => {
+            this._highlightSquareMouseOver(e.clientX, e.clientY);
+        });
+        
+        this.canvas.addEventListener('mousemove', (e) => {
             if (this.isMovingPiece) {
                 this.redraw();
                 this.drawPieceOnCursor(e.clientX, e.clientY);
-                this.highlightPossibilities();
             }
         });
     }
@@ -77,7 +99,12 @@ define([
     Board.prototype._drawBoard = function(){
         for (var x = 0; x < this.numberOfSquares; x++){
             for (var y = 0; y < this.numberOfSquares; y++){
-                this.squares[y].push(new Square(x,y, this.canvas.width/this.numberOfSquares, this.initialSetup[y][x], this.ctx));
+                var piece = null;
+                if (this.initialSetup[y][x] !== "none"){
+                    piece = new Piece(this.ctx, this.initialSetup[y][x], {"x": x, "y": y});
+                }
+                var square = new Square(x,y, this.canvas.width/this.numberOfSquares, piece, this.ctx)
+                this.squares[y].push(square);
             }
         }
     }
@@ -114,12 +141,10 @@ define([
     }
 
     Board.prototype.drawPieceOnCursor = function(x, y){
-        var piece = PiecesCollection[this.movingPieceName];
-
         var squareSide = this.canvas.width/this.numberOfSquares;
 
         this.ctx.font = (squareSide/2).toString() + "px serif";
-        this.ctx.fillText(piece, x, y);
+        this.ctx.fillText(this.movingPiece.getSymbol(), x, y);
     }
 
     return Board;

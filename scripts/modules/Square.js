@@ -1,54 +1,56 @@
-define(['modules/PiecesCollection'], function(PiecesCollection){
+define([
+    'modules/PiecesCollection',
+    'modules/Piece'
+], function(PiecesCollection, Piece){
 
     var Square = function(x, y, side, piece, ctx){
         this.x = x;
         this.y = y;
         this.side = side;
         this.ctx = ctx;
-        this.curPiece = null;
-
-        if (piece !== "none"){
-            this.curPiece = piece;
-        }
+        this.curPiece = piece;
 
         this.draw();
     }
 
-    Square.prototype.addPiece = function(name){
-        var piece = PiecesCollection[name];
+    Square.prototype.getPosition = function(){
+        return {
+            x: this.x,
+            y: this.y
+        };
+    }
 
-        this.ctx.font = (this.side/2).toString() + "px serif";
-        var piecePosition = {
-            x: this.x * this.side + Math.floor(this.side/4),
-            y: this.y * this.side + Math.floor(this.side/2),
-        }
-        this.ctx.fillText(piece, piecePosition.x, piecePosition.y);
-
-        this.curPiece = name;
+    Square.prototype.addPiece = function(piece){
+        this.curPiece = piece;
+        this.curPiece.draw(this);
     }
 
     Square.prototype.getSide = function(){
         return this.side;
     }
 
-    Square.prototype.clear = function(){
-        this.ctx.fillStyle = "#FFFFFF";
-        this.ctx.fillRect(this.x * this.side, this.y * this.side, this.side, this.side);
-        this.ctx.strokeRect(this.x * this.side, this.y * this.side, this.side, this.side);
-        this.curPiece = null;
-        this.ctx.fillStyle = "#000000";
+    Square.prototype.highlight = function(){
+        this.draw("green");
     }
 
-    Square.prototype.draw = function(){
+    Square.prototype.clear = function(){
+        this.curPiece = null;
+        this.draw();
+    }
+
+    Square.prototype.draw = function(color){
+        this.ctx.fillStyle = color || "#FFFFFF";
+        this.ctx.fillRect(this.x * this.side, this.y * this.side, this.side, this.side);
         this.ctx.strokeRect(this.x * this.side, this.y * this.side, this.side, this.side);
+        this.ctx.fillStyle = "#000000";
 
         if (this.curPiece){
-            this.addPiece(this.curPiece);
+            this.curPiece.draw(this);
         }
     }
 
     Square.prototype.getPiece = function(){
-        return (this.curPiece !== "none") ? this.curPiece : null;
+        return (this.curPiece !== null) ? this.curPiece : null;
     }
 
     Square.prototype.hasPiece = function(){
