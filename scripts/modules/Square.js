@@ -1,7 +1,6 @@
 define([
-    'modules/PiecesCollection',
     'modules/Piece'
-], function(PiecesCollection, Piece){
+], function(Piece){
 
     var Square = function(x, y, side, piece, ctx){
         this.x = x;
