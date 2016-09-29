@@ -73,24 +73,36 @@ define([
             }
     }
 
+    Board.prototype._correctCanvasOffset = function(clientX, clientY){
+        var rect = this.canvas.getBoundingClientRect();
+        return {
+            x: clientX - rect.left,
+            y: clientY - rect.top
+        }
+    }
+
     Board.prototype._setupListeners = function(){
 
        this.canvas.addEventListener("click", (e) => {
+            var correctedMouseCoords = this._correctCanvasOffset(e.clientX, e.clientY);
+
             if (this.isMovingPiece){
-                this._stopMovingPiece(e.clientX, e.clientY);
+                this._stopMovingPiece(correctedMouseCoords.x, correctedMouseCoords.y);
             }else{
-                this._startMovingPiece(e.clientX, e.clientY);
+                this._startMovingPiece(correctedMouseCoords.x, correctedMouseCoords.y);
             }
         });
         
         this.canvas.addEventListener('mousemove', (e) => {
-            this._highlightSquareMouseOver(e.clientX, e.clientY);
+            var correctedMouseCoords = this._correctCanvasOffset(e.clientX, e.clientY);
+            this._highlightSquareMouseOver(correctedMouseCoords.x, correctedMouseCoords.y);
         });
 
         this.canvas.addEventListener('mousemove', (e) => {
             if (this.isMovingPiece) {
                 this.redraw();
-                this.drawPieceOnCursor(e.clientX, e.clientY);
+                var correctedMouseCoords = this._correctCanvasOffset(e.clientX, e.clientY);
+                this.drawPieceOnCursor(correctedMouseCoords.x, correctedMouseCoords.y);
             }
         });
     }
