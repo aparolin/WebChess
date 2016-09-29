@@ -8,8 +8,37 @@ define([
         this.side = side;
         this.ctx = ctx;
         this.curPiece = piece;
+        this.color = this.determineColor();
 
         this.draw();
+    }
+
+    Square.prototype.isEvenRow = function(){
+        return this.x % 2 == 0;
+    }
+
+    Square.prototype.isEvenCoordinate = function(){
+        return ((this.x % 2 == 0) && (this.y % 2 == 0));
+    }
+
+    Square.prototype.isOddCoordinate = function(){
+        return ((this.x % 2 != 0) && (this.y % 2 != 0));
+    }
+
+    Square.prototype.determineColor = function(){
+        if (this.isEvenRow()){
+            if (this.isEvenCoordinate()){
+                return "#c0c0c0"
+            }else{
+                return "#e8e8e8"
+            }    
+        }else{
+            if (this.isOddCoordinate()){
+                return "#c0c0c0"
+            }else{
+                return "#e8e8e8"
+            }
+        }
     }
 
     Square.prototype.getPosition = function(){
@@ -38,7 +67,7 @@ define([
     }
 
     Square.prototype.draw = function(color){
-        this.ctx.fillStyle = color || "#FFFFFF";
+        this.ctx.fillStyle = color || this.color;
         this.ctx.fillRect(this.x * this.side, this.y * this.side, this.side, this.side);
         this.ctx.strokeRect(this.x * this.side, this.y * this.side, this.side, this.side);
         this.ctx.fillStyle = "#000000";
