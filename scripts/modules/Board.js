@@ -11,14 +11,14 @@ define([
         this.numberOfSquares = numberOfSquares;
 
         this.initialSetup = [
-            ["rook","knight","bishop","king","queen","bishop","knight","rook"],
-            ["pawn","pawn","pawn","pawn","pawn","pawn","pawn","pawn"],
+            ["white.rook","white.knight","white.bishop","white.king","white.queen","white.bishop","white.knight","white.rook"],
+            ["white.pawn","white.pawn","white.pawn","white.pawn","white.pawn","white.pawn","white.pawn","white.pawn"],
             ["none","none","none","none","none","none","none","none"],
             ["none","none","none","none","none","none","none","none"],
             ["none","none","none","none","none","none","none","none"],
             ["none","none","none","none","none","none","none","none"],
-            ["pawn","pawn","pawn","pawn","pawn","pawn","pawn","pawn"],
-            ["rook","knight","bishop","king","queen","bishop","knight","rook"]
+            ["black.pawn","black.pawn","black.pawn","black.pawn","black.pawn","black.pawn","black.pawn","black.pawn"],
+            ["black.rook","black.knight","black.bishop","black.king","black.queen","black.bishop","black.knight","black.rook"]
         ];
 
         this.squares = [[],[],[],[],[],[],[],[]];
@@ -112,7 +112,10 @@ define([
             for (var y = 0; y < this.numberOfSquares; y++){
                 var piece = null;
                 if (this.initialSetup[y][x] !== "none"){
-                    piece = new Piece(this.ctx, this.initialSetup[y][x], {"x": x, "y": y});
+                    var curPiece = this.initialSetup[y][x].split(".");
+                    var curPieceColor = curPiece[0];
+                    var curPieceName = curPiece[1];
+                    piece = new Piece(this.ctx, curPieceName, curPieceColor, {"x": x, "y": y});
                 }
                 var square = new Square(x,y, this.canvas.width/this.numberOfSquares, piece, this.ctx)
                 this.squares[y].push(square);
@@ -152,10 +155,14 @@ define([
     }
 
     Board.prototype.drawPieceOnCursor = function(x, y){
+        /*
         var squareSide = this.canvas.width/this.numberOfSquares;
 
         this.ctx.font = (squareSide/2).toString() + "px serif";
         this.ctx.fillText(this.movingPiece.getSymbol(), x, y);
+        */
+
+        this.movingPiece.draw(x,y);
     }
 
     return Board;
