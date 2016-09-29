@@ -58,7 +58,7 @@ define([
     }
 
     Square.prototype.highlight = function(){
-        this.draw("green");
+        this.draw("#66bef9");
     }
 
     Square.prototype.clear = function(){
