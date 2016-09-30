@@ -52,11 +52,12 @@ define([
 
         switch(this.movingPiece.getName()){
             case "pawn":
-                validSquares = this._getPawnValidSquares();        
+                this.validSquares = this._getPawnValidSquares();
+                break;        
         }
 
-        for (var i = 0; i < validSquares.length; i++){
-            validSquares[i].draw(ColorPicker.getHexColor("lightGreen"));
+        for (var i = 0; i < this.validSquares.length; i++){
+            this.validSquares[i].draw(ColorPicker.getHexColor("lightGreen"));
         }
 
     }
@@ -82,14 +83,15 @@ define([
     }
 
     Board.prototype._stopMovingPiece = function(mouseX, mouseY){
+        var that = this;
         function isTargetValidTargetSquare(square){
-            for (var i = 0; i < this.validSquares.length; i++){
-                if (square == this.validSquares[i]){
+            for (var i = 0; i < that.validSquares.length; i++){
+                if (square == that.validSquares[i]){
                     return true;
                 }
             }
-            return false;
-        }
+            return false;   
+        };
 
         this.redraw();
         var boardPosition = this.coords2BoardPosition(mouseX, mouseY);
