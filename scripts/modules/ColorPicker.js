@@ -15,7 +15,9 @@ define(function(){
             "lightGrey": "#e8e8e8",
             "darkGrey": "#c0c0c0",
             "black": "#000000",
-            "white": "#FFFFFF"
+            "white": "#FFFFFF",
+            "lightGreen":"#66d16b",
+            "lightRed":"#db7e59"
         },
 
         initialize: function(){

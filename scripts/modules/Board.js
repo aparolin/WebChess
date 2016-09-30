@@ -1,8 +1,9 @@
 define([
     'modules/Square',
     'modules/Piece',
-    'modules/Util'
-],function(Square, Piece, Util){
+    'modules/Util',
+    'modules/ColorPicker'
+],function(Square, Piece, Util, ColorPicker){
 
     var Board = function(numberOfSquares){
         this.isMovingPiece = false;
@@ -24,6 +25,42 @@ define([
         this.squares = [[],[],[],[],[],[],[],[]];
     }
 
+    Board.prototype._isSquareAvailable = function(row,col){
+        return (!this.squares[row][col].getPiece());
+    }
+
+    Board.prototype._getPawnValidSquares = function(){
+        var pawn = this.movingPiece;
+        var pawnPosition = pawn.getPosition();
+        var square = this._getSquareFromCoords(pawnPosition.x, pawnPosition.y);
+        var squarePosition = square.getPosition();
+
+        var availableSquares = [];
+        if (pawn.getColor() == "white"){
+            if (this._isSquareAvailable(squarePosition.y+1, squarePosition.x)){
+                availableSquares.push(this.squares[squarePosition.y+1][squarePosition.x]);
+            }
+            if ((squarePosition.y == 1) && this._isSquareAvailable(squarePosition.y+2, squarePosition.x)){
+                availableSquares.push(this.squares[squarePosition.y+2][squarePosition.x]);
+            }
+        }
+        return availableSquares;
+    }
+
+    Board.prototype._highlightValidSquares = function(){
+        this.validSquares = [];
+
+        switch(this.movingPiece.getName()){
+            case "pawn":
+                validSquares = this._getPawnValidSquares();        
+        }
+
+        for (var i = 0; i < validSquares.length; i++){
+            validSquares[i].draw(ColorPicker.getHexColor("lightGreen"));
+        }
+
+    }
+
     Board.prototype._getSquareFromCoords = function(x, y){
         var boardPosition = this.coords2BoardPosition(x, y);
         return this.squares[boardPosition.y][boardPosition.x];
@@ -35,8 +72,9 @@ define([
         var piece = square.getPiece(); 
         if (piece){
             square.clear();
-
+            
             this.movingPiece = piece;
+            this._highlightValidSquares();
             this.originSquare = square;
             this.isMovingPiece = true;
             this.canvasCopy = Util.cloneCanvas(this.canvas);
@@ -44,11 +82,20 @@ define([
     }
 
     Board.prototype._stopMovingPiece = function(mouseX, mouseY){
+        function isTargetValidTargetSquare(square){
+            for (var i = 0; i < this.validSquares.length; i++){
+                if (square == this.validSquares[i]){
+                    return true;
+                }
+            }
+            return false;
+        }
+
         this.redraw();
         var boardPosition = this.coords2BoardPosition(mouseX, mouseY);
         var targetSquare = this.squares[boardPosition.y][boardPosition.x];
 
-        if (targetSquare.hasPiece()){
+        if (targetSquare.hasPiece() || !isTargetValidTargetSquare(targetSquare)){
             this.originSquare.addPiece(this.movingPiece);
         } else{
             targetSquare.addPiece(this.movingPiece);

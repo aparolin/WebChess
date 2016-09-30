@@ -18,6 +18,10 @@ define([
         return this.position;
     }
 
+    Piece.prototype.getColor = function(){
+        return this.color;
+    }
+
     Piece.prototype.draw = function(square, x, y){
         if (typeof arguments[0] == "object"){
             var square = arguments[0];
