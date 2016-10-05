@@ -26,6 +26,10 @@ define([
     }
 
     Board.prototype._isSquareAvailable = function(row,col){
+        if ((row >= this.squares.length) || (row < 0) ||
+            (col >= this.squares[0].length) || (col < 0)){
+                return false;
+            }
         return (!this.squares[row][col].getPiece());
     }
 
@@ -43,6 +47,47 @@ define([
             if ((squarePosition.y == 1) && this._isSquareAvailable(squarePosition.y+2, squarePosition.x)){
                 availableSquares.push(this.squares[squarePosition.y+2][squarePosition.x]);
             }
+        }else{
+            if (this._isSquareAvailable(squarePosition.y-1, squarePosition.x)){
+                availableSquares.push(this.squares[squarePosition.y-1][squarePosition.x]);
+            }
+            if ((squarePosition.y == 6) && this._isSquareAvailable(squarePosition.y-2, squarePosition.x)){
+                availableSquares.push(this.squares[squarePosition.y-2][squarePosition.x]);
+            }
+        }
+        return availableSquares;
+    }
+
+    Board.prototype._getKnightValidSquares = function(){
+        var knight = this.movingPiece;
+        var knightPosition = knight.getPosition();
+        var square = this._getSquareFromCoords(knightPosition.x, knightPosition.y);
+        var squarePosition = square.getPosition();
+
+        var availableSquares = [];
+        if (this._isSquareAvailable(squarePosition.y-2, squarePosition.x+1)){
+            availableSquares.push(this.squares[squarePosition.y-2][squarePosition.x+1]);
+        }
+        if (this._isSquareAvailable(squarePosition.y-1, squarePosition.x+2)){
+            availableSquares.push(this.squares[squarePosition.y-1][squarePosition.x+2]);
+        }
+        if (this._isSquareAvailable(squarePosition.y+1, squarePosition.x+2)){
+            availableSquares.push(this.squares[squarePosition.y+1][squarePosition.x+2]);
+        }
+        if (this._isSquareAvailable(squarePosition.y+2, squarePosition.x+1)){
+            availableSquares.push(this.squares[squarePosition.y+2][squarePosition.x+1]);
+        }
+        if (this._isSquareAvailable(squarePosition.y+2, squarePosition.x-1)){
+            availableSquares.push(this.squares[squarePosition.y+2][squarePosition.x-1]);
+        }
+        if (this._isSquareAvailable(squarePosition.y+1, squarePosition.x-2)){
+            availableSquares.push(this.squares[squarePosition.y+1][squarePosition.x-2]);
+        }
+        if (this._isSquareAvailable(squarePosition.y-1, squarePosition.x-2)){
+            availableSquares.push(this.squares[squarePosition.y-1][squarePosition.x-2]);
+        }
+        if (this._isSquareAvailable(squarePosition.y-2, squarePosition.x-1)){
+            availableSquares.push(this.squares[squarePosition.y-2][squarePosition.x-1]);
         }
         return availableSquares;
     }
@@ -53,7 +98,10 @@ define([
         switch(this.movingPiece.getName()){
             case "pawn":
                 this.validSquares = this._getPawnValidSquares();
-                break;        
+                break;
+            case "knight":
+                this.validSquares = this._getKnightValidSquares();
+                break; 
         }
 
         for (var i = 0; i < this.validSquares.length; i++){
