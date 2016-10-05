@@ -1,7 +1,7 @@
 define(function(){
     return {
-        "king": "♛",
-        "queen": "♚",
+        "queen": "♛",
+        "king": "♚",
         "bishop": "♝",
         "knight": "♞",
         "rook": "♜",

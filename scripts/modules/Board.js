@@ -12,14 +12,14 @@ define([
         this.numberOfSquares = numberOfSquares;
 
         this.initialSetup = [
-            ["white.rook","white.knight","white.bishop","white.king","white.queen","white.bishop","white.knight","white.rook"],
-            ["white.pawn","white.pawn","white.pawn","white.pawn","white.pawn","white.pawn","white.pawn","white.pawn"],
-            ["none","none","none","none","none","none","none","none"],
-            ["none","none","none","none","none","none","none","none"],
-            ["none","none","none","none","none","none","none","none"],
-            ["none","none","none","none","none","none","none","none"],
+            ["black.rook","black.knight","black.bishop","black.queen","black.king","black.bishop","black.knight","black.rook"],
             ["black.pawn","black.pawn","black.pawn","black.pawn","black.pawn","black.pawn","black.pawn","black.pawn"],
-            ["black.rook","black.knight","black.bishop","black.king","black.queen","black.bishop","black.knight","black.rook"]
+            ["none","none","none","none","none","none","none","none"],
+            ["none","none","none","none","none","none","none","none"],
+            ["none","none","none","none","none","none","none","none"],
+            ["none","none","none","none","none","none","none","none"],
+            ["white.pawn","white.pawn","white.pawn","white.pawn","white.pawn","white.pawn","white.pawn","white.pawn"],
+            ["white.rook","white.knight","white.bishop","white.queen","white.king","white.bishop","white.knight","white.rook"]
         ];
 
         this.squares = [[],[],[],[],[],[],[],[]];
@@ -42,18 +42,18 @@ define([
 
         var availableSquares = [];
         if (piece.getColor() == "white"){
-            if (this._isSquareAvailable(row+1, col)){
-                availableSquares.push(this.squares[row+1][col]);
-            }
-            if ((row == 1) && this._isSquareAvailable(row+2, col)){
-                availableSquares.push(this.squares[row+2][col]);
-            }
-        }else{
             if (this._isSquareAvailable(row-1, col)){
                 availableSquares.push(this.squares[row-1][col]);
             }
             if ((row == 6) && this._isSquareAvailable(row-2, col)){
                 availableSquares.push(this.squares[row-2][col]);
+            }
+        }else{
+            if (this._isSquareAvailable(row+1, col)){
+                availableSquares.push(this.squares[row+1][col]);
+            }
+            if ((row == 1) && this._isSquareAvailable(row+2, col)){
+                availableSquares.push(this.squares[row+2][col]);
             }
         }
         return availableSquares;
@@ -119,8 +119,6 @@ define([
     };
 
     Board.prototype._getRookValidSquares = function(piece){
-        var board = this;
-
         var rookPosition = piece.getPosition();
         var square = this._getSquareFromCoords(rookPosition.x, rookPosition.y);
         var squarePosition = square.getRowColPosition();
@@ -150,8 +148,6 @@ define([
     };
 
     Board.prototype._getBishopValidSquares = function(piece){
-        var board = this;
-    
         var bishopPosition = piece.getPosition();
         var square = this._getSquareFromCoords(bishopPosition.x, bishopPosition.y);
         var squarePosition = square.getRowColPosition();
@@ -167,7 +163,22 @@ define([
     }
 
     Board.prototype._getQueenValidSquares = function(piece){
+        var queenPosition = piece.getPosition();
+        var square = this._getSquareFromCoords(queenPosition.x, queenPosition.y);
+        var squarePosition = square.getRowColPosition();
+        var curRow = squarePosition.row;
+        var curCol = squarePosition.col;
 
+        var availableSquares = [];
+        availableSquares = availableSquares.concat(this._checkHorizontalSquares(curRow, curCol, +1));
+        availableSquares = availableSquares.concat(this._checkHorizontalSquares(curRow, curCol, -1));
+        availableSquares = availableSquares.concat(this._checkVerticalSquares(curRow, curCol, +1));
+        availableSquares = availableSquares.concat(this._checkVerticalSquares(curRow, curCol, -1));
+        availableSquares = availableSquares.concat(this._checkDiagonalSquares(curRow, curCol, +1,+1));
+        availableSquares = availableSquares.concat(this._checkDiagonalSquares(curRow, curCol, -1,+1));
+        availableSquares = availableSquares.concat(this._checkDiagonalSquares(curRow, curCol, -1,-1));
+        availableSquares = availableSquares.concat(this._checkDiagonalSquares(curRow, curCol, +1,-1));
+        return availableSquares;
     }
 
     Board.prototype._highlightValidSquares = function(piece){
@@ -185,6 +196,9 @@ define([
                 break;
             case "bishop":
                 this.validSquares = this._getBishopValidSquares(piece);
+                break;
+            case "queen":
+                this.validSquares = this._getQueenValidSquares(piece);
                 break;
         }
 
