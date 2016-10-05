@@ -181,6 +181,32 @@ define([
         return availableSquares;
     }
 
+    Board.prototype._getKingValidSquares = function(piece){
+        var board = this;
+        function checkNeighborSquare(rowDirection, colDirection){
+            if (board._isSquareAvailable(row+rowDirection, col+colDirection)){
+                availableSquares.push(board.squares[row+rowDirection][col+colDirection]);
+            }
+        }
+
+        var kingPosition = piece.getPosition();
+        var square = this._getSquareFromCoords(kingPosition.x, kingPosition.y);
+        var squarePosition = square.getRowColPosition();
+        var row = squarePosition.row;
+        var col = squarePosition.col;
+
+        var availableSquares = [];
+        checkNeighborSquare(+1,0);
+        checkNeighborSquare(+1,+1);
+        checkNeighborSquare(0,+1);
+        checkNeighborSquare(-1,+1);
+        checkNeighborSquare(-1,0);
+        checkNeighborSquare(-1,-1);
+        checkNeighborSquare(0,-1);
+        checkNeighborSquare(+1,-1);
+        return availableSquares;
+    }
+
     Board.prototype._highlightValidSquares = function(piece){
         this.validSquares = [];
 
@@ -199,6 +225,9 @@ define([
                 break;
             case "queen":
                 this.validSquares = this._getQueenValidSquares(piece);
+                break;
+            case "king":
+                this.validSquares = this._getKingValidSquares(piece);
                 break;
         }
 
