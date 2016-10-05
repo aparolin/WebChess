@@ -98,7 +98,7 @@ define([
         var board = this;
 
         function checkHorizontalSquares(direction){
-            for (var row = curRow; row < board.squares.length; row += direction){
+            for (var row = curRow; row < board.squares.length && row >= 0; row += direction){
                 if (board._isSquareAvailable(row, curCol)){
                     availableSquares.push(board.squares[row][curCol]);
                 }else{
@@ -108,7 +108,7 @@ define([
         };
 
         function checkVerticalSquares(direction){
-            for (var col = curCol; col < board.squares[0].length; col += direction){
+            for (var col = curCol; col < board.squares[0].length && col >= 0; col += direction){
                 if (board._isSquareAvailable(curRow, col)){
                     availableSquares.push(board.squares[curRow][col]);
                 }else{
@@ -131,6 +131,37 @@ define([
         return availableSquares;
     }
 
+    Board.prototype._getBishopValidSquares = function(piece){
+        var board = this;
+        function checkDiagonalSquares(rowDirection, colDirection){
+            var row = curRow;
+            var col = curCol;
+
+            while (true){
+                if (board._isSquareAvailable(row, col)){
+                    availableSquares.push(board.squares[row][col]);
+                }else{
+                    break;
+                }
+                row += rowDirection;
+                col += colDirection;
+            }
+        };
+        
+        var bishopPosition = piece.getPosition();
+        var square = this._getSquareFromCoords(bishopPosition.x, bishopPosition.y);
+        var squarePosition = square.getRowColPosition();
+        var curRow = squarePosition.row;
+        var curCol = squarePosition.col;
+
+        var availableSquares = [];
+        checkDiagonalSquares(+1,+1);
+        checkDiagonalSquares(-1,+1);
+        checkDiagonalSquares(-1,-1);
+        checkDiagonalSquares(+1,-1);
+        return availableSquares;
+    }
+
     Board.prototype._highlightValidSquares = function(piece){
         this.validSquares = [];
 
@@ -143,6 +174,9 @@ define([
                 break; 
             case "rook":
                 this.validSquares = this._getRookValidSquares(piece);
+                break;
+            case "bishop":
+                this.validSquares = this._getBishopValidSquares(piece);
                 break;
         }
 
