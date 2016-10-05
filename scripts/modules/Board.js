@@ -94,28 +94,32 @@ define([
         return availableSquares;
     }
 
+    Board.prototype._checkHorizontalSquares = function(curRow, curCol, direction){
+        var availableSquares = [];
+        for (var row = curRow; row < this.squares.length && row >= 0; row += direction){
+            if (this._isSquareAvailable(row, curCol)){
+                availableSquares.push(this.squares[row][curCol]);
+            }else{
+                break;
+            }
+        }
+        return availableSquares;
+    };
+
+    Board.prototype._checkVerticalSquares = function(curRow, curCol, direction){
+        var availableSquares = [];
+        for (var col = curCol; col < this.squares[0].length && col >= 0; col += direction){
+            if (this._isSquareAvailable(curRow, col)){
+                availableSquares.push(this.squares[curRow][col]);
+            }else{
+                break;
+            }
+        }
+        return availableSquares;
+    };
+
     Board.prototype._getRookValidSquares = function(piece){
         var board = this;
-
-        function checkHorizontalSquares(direction){
-            for (var row = curRow; row < board.squares.length && row >= 0; row += direction){
-                if (board._isSquareAvailable(row, curCol)){
-                    availableSquares.push(board.squares[row][curCol]);
-                }else{
-                    break;
-                }
-            }
-        };
-
-        function checkVerticalSquares(direction){
-            for (var col = curCol; col < board.squares[0].length && col >= 0; col += direction){
-                if (board._isSquareAvailable(curRow, col)){
-                    availableSquares.push(board.squares[curRow][col]);
-                }else{
-                    break;
-                }
-            }
-        };
 
         var rookPosition = piece.getPosition();
         var square = this._getSquareFromCoords(rookPosition.x, rookPosition.y);
@@ -124,30 +128,30 @@ define([
         var curCol = squarePosition.col;
 
         var availableSquares = [];
-        checkHorizontalSquares(+1);
-        checkHorizontalSquares(-1);
-        checkVerticalSquares(+1);
-        checkVerticalSquares(-1);
+        availableSquares = availableSquares.concat(this._checkHorizontalSquares(curRow, curCol, +1));
+        availableSquares = availableSquares.concat(this._checkHorizontalSquares(curRow, curCol, -1));
+        availableSquares = availableSquares.concat(this._checkVerticalSquares(curRow, curCol, +1));
+        availableSquares = availableSquares.concat(this._checkVerticalSquares(curRow, curCol, -1));
         return availableSquares;
     }
 
+    Board.prototype._checkDiagonalSquares = function(row, col, rowDirection, colDirection){
+        var availableSquares = [];
+        while (true){
+            if (this._isSquareAvailable(row, col)){
+                availableSquares.push(this.squares[row][col]);
+            }else{
+                break;
+            }
+            row += rowDirection;
+            col += colDirection;
+        }
+        return availableSquares;
+    };
+
     Board.prototype._getBishopValidSquares = function(piece){
         var board = this;
-        function checkDiagonalSquares(rowDirection, colDirection){
-            var row = curRow;
-            var col = curCol;
-
-            while (true){
-                if (board._isSquareAvailable(row, col)){
-                    availableSquares.push(board.squares[row][col]);
-                }else{
-                    break;
-                }
-                row += rowDirection;
-                col += colDirection;
-            }
-        };
-        
+    
         var bishopPosition = piece.getPosition();
         var square = this._getSquareFromCoords(bishopPosition.x, bishopPosition.y);
         var squarePosition = square.getRowColPosition();
@@ -155,11 +159,15 @@ define([
         var curCol = squarePosition.col;
 
         var availableSquares = [];
-        checkDiagonalSquares(+1,+1);
-        checkDiagonalSquares(-1,+1);
-        checkDiagonalSquares(-1,-1);
-        checkDiagonalSquares(+1,-1);
+        availableSquares = availableSquares.concat(this._checkDiagonalSquares(curRow, curCol, +1,+1));
+        availableSquares = availableSquares.concat(this._checkDiagonalSquares(curRow, curCol, -1,+1));
+        availableSquares = availableSquares.concat(this._checkDiagonalSquares(curRow, curCol, -1,-1));
+        availableSquares = availableSquares.concat(this._checkDiagonalSquares(curRow, curCol, +1,-1));
         return availableSquares;
+    }
+
+    Board.prototype._getQueenValidSquares = function(piece){
+
     }
 
     Board.prototype._highlightValidSquares = function(piece){
