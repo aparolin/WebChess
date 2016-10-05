@@ -48,6 +48,13 @@ define([
         };
     }
 
+    Square.prototype.getRowColPosition = function(){
+        return {
+            row: this.y,
+            col: this.x
+        }
+    }
+
     Square.prototype.addPiece = function(piece){
         this.curPiece = piece;
         this.curPiece.draw(this);

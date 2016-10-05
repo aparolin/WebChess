@@ -33,75 +33,117 @@ define([
         return (!this.squares[row][col].getPiece());
     }
 
-    Board.prototype._getPawnValidSquares = function(){
-        var pawn = this.movingPiece;
-        var pawnPosition = pawn.getPosition();
+    Board.prototype._getPawnValidSquares = function(piece){
+        var pawnPosition = piece.getPosition();
         var square = this._getSquareFromCoords(pawnPosition.x, pawnPosition.y);
-        var squarePosition = square.getPosition();
+        var squarePosition = square.getRowColPosition();
+        var row = squarePosition.row;
+        var col = squarePosition.col;
 
         var availableSquares = [];
-        if (pawn.getColor() == "white"){
-            if (this._isSquareAvailable(squarePosition.y+1, squarePosition.x)){
-                availableSquares.push(this.squares[squarePosition.y+1][squarePosition.x]);
+        if (piece.getColor() == "white"){
+            if (this._isSquareAvailable(row+1, col)){
+                availableSquares.push(this.squares[row+1][col]);
             }
-            if ((squarePosition.y == 1) && this._isSquareAvailable(squarePosition.y+2, squarePosition.x)){
-                availableSquares.push(this.squares[squarePosition.y+2][squarePosition.x]);
+            if ((row == 1) && this._isSquareAvailable(row+2, col)){
+                availableSquares.push(this.squares[row+2][col]);
             }
         }else{
-            if (this._isSquareAvailable(squarePosition.y-1, squarePosition.x)){
-                availableSquares.push(this.squares[squarePosition.y-1][squarePosition.x]);
+            if (this._isSquareAvailable(row-1, col)){
+                availableSquares.push(this.squares[row-1][col]);
             }
-            if ((squarePosition.y == 6) && this._isSquareAvailable(squarePosition.y-2, squarePosition.x)){
-                availableSquares.push(this.squares[squarePosition.y-2][squarePosition.x]);
+            if ((row == 6) && this._isSquareAvailable(row-2, col)){
+                availableSquares.push(this.squares[row-2][col]);
             }
         }
         return availableSquares;
     }
 
-    Board.prototype._getKnightValidSquares = function(){
-        var knight = this.movingPiece;
-        var knightPosition = knight.getPosition();
+    Board.prototype._getKnightValidSquares = function(piece){
+        var knightPosition = piece.getPosition();
         var square = this._getSquareFromCoords(knightPosition.x, knightPosition.y);
-        var squarePosition = square.getPosition();
+        var squarePosition = square.getRowColPosition();
+        var row = squarePosition.row;
+        var col = squarePosition.col;
 
         var availableSquares = [];
-        if (this._isSquareAvailable(squarePosition.y-2, squarePosition.x+1)){
-            availableSquares.push(this.squares[squarePosition.y-2][squarePosition.x+1]);
+        if (this._isSquareAvailable(row-2, col+1)){
+            availableSquares.push(this.squares[row-2][col+1]);
         }
-        if (this._isSquareAvailable(squarePosition.y-1, squarePosition.x+2)){
-            availableSquares.push(this.squares[squarePosition.y-1][squarePosition.x+2]);
+        if (this._isSquareAvailable(row-1, col+2)){
+            availableSquares.push(this.squares[row-1][col+2]);
         }
-        if (this._isSquareAvailable(squarePosition.y+1, squarePosition.x+2)){
-            availableSquares.push(this.squares[squarePosition.y+1][squarePosition.x+2]);
+        if (this._isSquareAvailable(row+1, col+2)){
+            availableSquares.push(this.squares[row+1][col+2]);
         }
-        if (this._isSquareAvailable(squarePosition.y+2, squarePosition.x+1)){
-            availableSquares.push(this.squares[squarePosition.y+2][squarePosition.x+1]);
+        if (this._isSquareAvailable(row+2, col+1)){
+            availableSquares.push(this.squares[row+2][col+1]);
         }
-        if (this._isSquareAvailable(squarePosition.y+2, squarePosition.x-1)){
-            availableSquares.push(this.squares[squarePosition.y+2][squarePosition.x-1]);
+        if (this._isSquareAvailable(row+2, col-1)){
+            availableSquares.push(this.squares[row+2][col-1]);
         }
-        if (this._isSquareAvailable(squarePosition.y+1, squarePosition.x-2)){
-            availableSquares.push(this.squares[squarePosition.y+1][squarePosition.x-2]);
+        if (this._isSquareAvailable(row+1, col-2)){
+            availableSquares.push(this.squares[row+1][col-2]);
         }
-        if (this._isSquareAvailable(squarePosition.y-1, squarePosition.x-2)){
-            availableSquares.push(this.squares[squarePosition.y-1][squarePosition.x-2]);
+        if (this._isSquareAvailable(row-1, col-2)){
+            availableSquares.push(this.squares[row-1][col-2]);
         }
-        if (this._isSquareAvailable(squarePosition.y-2, squarePosition.x-1)){
-            availableSquares.push(this.squares[squarePosition.y-2][squarePosition.x-1]);
+        if (this._isSquareAvailable(row-2, col-1)){
+            availableSquares.push(this.squares[row-2][col-1]);
         }
         return availableSquares;
     }
 
-    Board.prototype._highlightValidSquares = function(){
+    Board.prototype._getRookValidSquares = function(piece){
+        var board = this;
+
+        function checkHorizontalSquares(direction){
+            for (var row = curRow; row < board.squares.length; row += direction){
+                if (board._isSquareAvailable(row, curCol)){
+                    availableSquares.push(board.squares[row][curCol]);
+                }else{
+                    break;
+                }
+            }
+        };
+
+        function checkVerticalSquares(direction){
+            for (var col = curCol; col < board.squares[0].length; col += direction){
+                if (board._isSquareAvailable(curRow, col)){
+                    availableSquares.push(board.squares[curRow][col]);
+                }else{
+                    break;
+                }
+            }
+        };
+
+        var rookPosition = piece.getPosition();
+        var square = this._getSquareFromCoords(rookPosition.x, rookPosition.y);
+        var squarePosition = square.getRowColPosition();
+        var curRow = squarePosition.row;
+        var curCol = squarePosition.col;
+
+        var availableSquares = [];
+        checkHorizontalSquares(+1);
+        checkHorizontalSquares(-1);
+        checkVerticalSquares(+1);
+        checkVerticalSquares(-1);
+        return availableSquares;
+    }
+
+    Board.prototype._highlightValidSquares = function(piece){
         this.validSquares = [];
 
         switch(this.movingPiece.getName()){
             case "pawn":
-                this.validSquares = this._getPawnValidSquares();
+                this.validSquares = this._getPawnValidSquares(piece);
                 break;
             case "knight":
-                this.validSquares = this._getKnightValidSquares();
+                this.validSquares = this._getKnightValidSquares(piece);
                 break; 
+            case "rook":
+                this.validSquares = this._getRookValidSquares(piece);
+                break;
         }
 
         for (var i = 0; i < this.validSquares.length; i++){
@@ -123,7 +165,7 @@ define([
             square.clear();
             
             this.movingPiece = piece;
-            this._highlightValidSquares();
+            this._highlightValidSquares(piece);
             this.originSquare = square;
             this.isMovingPiece = true;
             this.canvasCopy = Util.cloneCanvas(this.canvas);
@@ -241,10 +283,6 @@ define([
     Board.prototype.coords2BoardPosition = function(mouseX, mouseY){
         var squareSide = this.canvas.width/this.numberOfSquares;
 
-        //correct mouse detection weird behavior
-        mouseX = (mouseX >= canvas.width) ? canvas.width -1 : mouseX;
-        mouseY = (mouseY >= canvas.height) ? canvas.height -1 : mouseY;
-
         return {
             x: Math.floor(mouseX/squareSide),
             y: Math.floor(mouseY/squareSide),
@@ -252,13 +290,6 @@ define([
     }
 
     Board.prototype.drawPieceOnCursor = function(x, y){
-        /*
-        var squareSide = this.canvas.width/this.numberOfSquares;
-
-        this.ctx.font = (squareSide/2).toString() + "px serif";
-        this.ctx.fillText(this.movingPiece.getSymbol(), x, y);
-        */
-
         this.movingPiece.draw(x,y);
     }
 
